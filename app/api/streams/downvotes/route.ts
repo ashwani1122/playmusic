@@ -3,7 +3,6 @@ import { prismaClient } from "@/app/lib/db";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { z } from "zod";
-
 const CreateUpvoteSchema = z.object({
         streamId : z.string(),
 });
@@ -14,13 +13,11 @@ export async function POST(req: NextRequest) {
                     email : session?.user?.email ?? ""
                 }
             })
-
             if(!user){
                 return NextResponse.json({error:"User not found",
                     status:400
                 });
-            }
-            
+            } 
         try{
             const data = CreateUpvoteSchema.parse(await req.json());
             await prismaClient.upvote.delete({
@@ -31,6 +28,10 @@ export async function POST(req: NextRequest) {
                     }
                 }
             })
+            return NextResponse.json({
+                status:200,
+                message:"Upvote deleted successfully"
+            });
         }
         catch(error){
             return NextResponse.json({error});

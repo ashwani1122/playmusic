@@ -1,7 +1,9 @@
+
 require("dotenv").config();
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { prismaClient } from "../../../lib/db";
+
 
 export const authOptions = {
     providers: [
@@ -9,7 +11,10 @@ export const authOptions = {
         clientId: process.env.GOOGLE_ID ?? "",
         clientSecret: process.env.GOOGLE_SECRETE ?? "",
         }),
+        
     ],
+    secret: process.env.NEXTAUTH_SECRET ?? "5635635",
+    
     callbacks :{
         async signIn(params: any): Promise<boolean> {
             try{

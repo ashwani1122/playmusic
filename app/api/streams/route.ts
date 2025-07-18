@@ -9,7 +9,6 @@ const CreateStreamSchema = z.object({
 });
 export async function POST(req: NextRequest) {
             const data =  CreateStreamSchema.parse(await req.json());
-            console.log(data.url)
             const isYtb = YT_REGEX.test(data.url);
             console.log("this is the "+isYtb)
             if(isYtb){
@@ -30,7 +29,7 @@ export async function POST(req: NextRequest) {
                 })
                 return NextResponse.json({
                     message:"Stream created successfully",
-                    id : stream.id,
+                    stream
                 });
             }
             else{
