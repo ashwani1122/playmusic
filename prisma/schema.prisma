@@ -13,6 +13,7 @@ model User {
   provider       Provider
   streams        Stream[]
   Upvotes        Upvote[]
+  
 }
 model Stream {
   id             String       @id @default(uuid())
@@ -26,6 +27,8 @@ model Stream {
   userId         String
   user           User         @relation(fields: [userId], references: [id])
   Upvotes        Upvote[]
+  @@unique([userId, url])
+  
 }
 model Upvote{
   id             String       @id @default(uuid())
@@ -34,6 +37,7 @@ model Upvote{
   streamId       String
   stream         Stream       @relation(fields: [streamId], references: [id])
   @@unique([userId, streamId])
+   
 }
 enum StreamType {
   Youtube

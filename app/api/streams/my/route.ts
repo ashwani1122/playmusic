@@ -1,9 +1,6 @@
 import { prismaClient } from "@/app/lib/db";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
-
-
-
 export async function GET(req: NextRequest) {
     const session = await getServerSession();
     const user = await prismaClient.user.findFirst({
@@ -34,6 +31,10 @@ export async function GET(req: NextRequest) {
         }
     })
     return NextResponse.json({
-        streams 
+        streams: streams.map(({_count , ...rest}) => ({
+            ...rest,
+            upvotes : _count.Upvotes,
+            haveUpvotes : rest.Upvotes.length ? true : false,
+        }))
     });
 }

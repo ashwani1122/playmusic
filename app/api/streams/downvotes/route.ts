@@ -3,11 +3,12 @@ import { prismaClient } from "@/app/lib/db";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { z } from "zod";
+import { authOptions } from "../../auth/[...nextauth]/route";
 const CreateUpvoteSchema = z.object({
         streamId : z.string(),
 });
 export async function POST(req: NextRequest) {
-            const session = await  getServerSession();
+            const session = await  getServerSession(authOptions);
             const user = await prismaClient.user.findFirst({
                 where : {
                     email : session?.user?.email ?? ""

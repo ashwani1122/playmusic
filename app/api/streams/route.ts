@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
                         extractedId : extractedId,
                         title : res.title ?? "Cant find title",
                         BigThumbnail :(thumbnail[thumbnail.length - 1]).url ?? "https://images.unsplash.com/photo-1437482078695-73f5ca6c96e2?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cml2ZXJ8ZW58MHx8MHx8fDA%3D",
-                        SmallThumbnail :(thumbnail.length > 1 ? (thumbnail[thumbnail.length - 2]).url : (thumbnail[thumbnail.length - 1]).url) ?? "https://images.unsplash.com/photo-1437482078695-73f5ca6c96e2?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cml2ZXJ8ZW58MHx8MHx8fDA%3D"
+                        SmallThumbnail :(thumbnail.length > 1 ? (thumbnail[thumbnail.length - 2]).url : (thumbnail[thumbnail.length - 1]).url) ?? "https://images.unsplash.com/photo-1437482078695-73f5ca6c96e2?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cml2ZXJ8ZW58MHx8MHx8fDA%3D",
                     }
                 })
                 return NextResponse.json({

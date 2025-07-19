@@ -1,15 +1,15 @@
 "use client";
 import Button from "@mui/material/Button";
-import { useState, useEffect, use } from "react";
-import { set } from "zod";
+import { useState, useEffect } from "react";
+// import { set } from "zod";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 export default function Dashboard() {
     const [videoId, setVideoId] = useState("");
     const [url, setUrl] = useState("");
     const [queue, setQueue] = useState<Video[]>([]);
-    const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
 
+const [upvoteCounts, setUpvoteCounts] = useState<Record<string, number>>({});
     interface Video {
         id: string;
         title: string;
@@ -29,14 +29,38 @@ export default function Dashboard() {
             url,
         }),
         });
-
         if (res.status === 200) {
         const data = await res.json();
         setQueue([...queue, data.stream]);
         setUrl("");
         }
-        
+        console.log(res);
+        // console.log()
     };
+    async function getInfo(){
+    const res = await fetch("/api/streams/my", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        }
+    });
+    const data = await res.json();
+
+    const countsMap: Record<string, number> = {};
+    data.streams.forEach((video: Video) => {
+        countsMap[video.id] = video.upvotes;
+    });
+
+    setUpvoteCounts(countsMap);
+}
+
+    useEffect(() => {
+        const interval = setInterval(()=>{
+            getInfo()
+        },10000)
+        return () => clearInterval(interval)
+    },[])
+        
     useEffect(() => {
         if (!url.startsWith("http")) return;
         try {
@@ -46,6 +70,13 @@ export default function Dashboard() {
         } catch {
         }
     }, [url]);
+        // function handler2(id : string){
+        //     count.map((video :Video) =>{
+        //         if(video.id === id){
+        //             setCount2(upvoteCounts[video.id])
+        //         }
+        //     })
+        // }
     return (
         <div className="flex flex-col gap-10 items-center text-white bg-black h-screen">
         <h1 className="text-4xl font-bold">Dashboard</h1>
@@ -67,15 +98,14 @@ export default function Dashboard() {
         >
             Submit
         </Button>
-        <div className="grid grid-cols-2 gap-10 w-full justify-between">
-            <div className="flex flex-col ">
+        <div className="grid grid-cols-2  gap-10 w-full justify-between">
+            <div className="flex flex-col bg-gray-500 text-sm rounded-xl">
             {queue.map((video) => (
             <div key={video.id} className="w-full flex  gap-2 p-4 rounded-xl border-2 border-black">
                 <img className="w-40 h-30" src={video.SmallThumbnail} alt={video.title} /> 
                 <div>
                 <p>{video.title}</p>
-                
-                <ArrowUpwardIcon className="text-white" onClick={async () =>{
+                <ArrowUpwardIcon className="text-green-700" onClick={async () =>{
                 const res =  await fetch(`/api/streams/upvotes`,
                     {
                     method: "POST",
@@ -88,6 +118,23 @@ export default function Dashboard() {
                 }
                 }
                 />
+                <p>{upvoteCounts[video.id] ?? 0}</p>
+
+                <ArrowDropDownIcon className="text-red-700" onClick={async () =>{
+                const res =  await fetch(`/api/streams/downvotes`,
+                    {
+                    method: "POST",
+                    body: JSON.stringify({
+                        streamId: video.id
+                    }),
+                    }
+                    )
+                console.log(res)
+                }
+                }
+                />
+             
+                {/* <p>{video.downvotes}</p> */}
                 </div>
             </div>
             ))}
@@ -103,6 +150,7 @@ export default function Dashboard() {
         )}
         </div>   
         </div>
-    </div>
+        </div>
+        
     );
 }
