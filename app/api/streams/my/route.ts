@@ -1,21 +1,25 @@
 import { prismaClient } from "@/app/lib/db";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]/route";
+
 export async function GET(req: NextRequest) {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     const user = await prismaClient.user.findFirst({
         where : {
             email : session?.user?.email ?? ""
         }
     })
+    console.log("the use is this id "+user?.id)
     if(!user){
         return NextResponse.json({error:"User not found",
-            status:400
+            status:404    
         });
     } 
     const streams = await prismaClient.stream.findMany({
         where : {
-            userId : user.id
+            userId : user.id,
+            active : true
         },
         include:{
             _count:{
@@ -30,11 +34,6 @@ export async function GET(req: NextRequest) {
             }
         }
     })
-    return NextResponse.json({
-        streams: streams.map(({_count , ...rest}) => ({
-            ...rest,
-            upvotes : _count.Upvotes,
-            haveUpvotes : rest.Upvotes.length ? true : false,
-        }))
-    });
+
+    return NextResponse.json({streams:streams});
 }

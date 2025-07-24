@@ -8,6 +8,7 @@ const CreateStreamSchema = z.object({
         url : z.string()  
 });
 export async function POST(req: NextRequest) {
+    try{
             const data =  CreateStreamSchema.parse(await req.json());
             const isYtb = YT_REGEX.test(data.url);
             console.log("this is the "+isYtb)
@@ -28,8 +29,7 @@ export async function POST(req: NextRequest) {
                     }
                 })
                 return NextResponse.json({
-                    message:"Stream created successfully",
-                    stream
+                    stream: stream
                 });
             }
             else{
@@ -37,7 +37,12 @@ export async function POST(req: NextRequest) {
                     status:400
             });
         }
-    }
+    } catch(e : any){
+        return NextResponse.json({error:e.message,
+        status:400
+    });
+}
+}
 export async function GET(req: NextRequest) {
     const creatorId = req.nextUrl.searchParams.get("creatorId");
     if(!creatorId){
