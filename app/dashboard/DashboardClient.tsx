@@ -28,7 +28,7 @@ interface Video {
         setQueue(streams);
 
         // Ensure currentVideo is always the top-voted one
-        const top = streams.sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes))[0];
+        const top = streams.sort((a:any, b:any) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes))[0];
         setCurrentVideo(top);
     }, []);
 
@@ -37,12 +37,10 @@ interface Video {
         const iv = setInterval(refreshQueue, 10000);
         return () => clearInterval(iv);
     }, [refreshQueue]);
-
     const handleVote = async (id: string, type: "up" | "down") => {
         if (userVoted[id] === (type === "up" ? 1 : -1)) return;
-
         await fetch(`/api/streams/${type === "up" ? "upvotes" : "downvotes"}`, {
-        method: type === "up" ? "POST" : "DELETE",
+        method: "POST",
         body: JSON.stringify({ streamId: id }),
         });
 
@@ -50,8 +48,8 @@ interface Video {
         setQueue(q =>
         q.map(v => {
             if (v.id === id) {
-            const delta = type === "up" ? 1 : -1;
-            return { ...v, upvotes: v.upvotes + (type === "up" ? 1 : 0), downvotes: v.downvotes + (type === "down" ? 1 : 0) };
+            // const delta = type === "up" ? 1 : -1;
+            return {  ...v, upvotes: v.upvotes + (type === "up" ? 1 : 0), downvotes: v.downvotes - (type === "down" ? 1 : 0) };
             }
             return v;
         })
@@ -70,10 +68,10 @@ interface Video {
     };
 
     const handleSubmit = async () => {
-        if (!url.startsWith("http")) return;
+        if (!url.startsWith("https")) return;
         await fetch("/api/streams", {
         method: "POST",
-        body: JSON.stringify({ creatorId: "c91c...", url }),
+        body: JSON.stringify({ creatorId: "c91cccc7-80f2-47e9-9988-ee395ac7cbcb", url }),
         });
         setUrl("");
         refreshQueue();
@@ -124,12 +122,12 @@ interface Video {
                     <div className="flex-1">
                     <p className="font-semibold">{vid.title}</p>
                     <div className="flex items-center space-x-2 mt-1">
-                        <ArrowDropUpIcon
+                        <ArrowDropUpIcon fontSize="large"
                         className={clsx("cursor-pointer", userVoted[vid.id] === 1 ? "text-green-400" : "text-green-600")}
                         onClick={() => handleVote(vid.id, "up")}
                         />
-                        <span>{net}</span>
-                        <ArrowDropDownIcon
+                        <span>{queue.map(v => v.id === vid.id ? v._count.Upvotes : 0).reduce((a, b) => a + b)}</span>
+                        <ArrowDropDownIcon fontSize="large"
                         className={clsx("cursor-pointer", userVoted[vid.id] === -1 ? "text-red-400" : "text-red-600")}
                         onClick={() => handleVote(vid.id, "down")}
                         />
