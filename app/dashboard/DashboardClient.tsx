@@ -5,7 +5,7 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ShareIcon from "@mui/icons-material/Share";
 import clsx from "clsx";
-
+import { useSession } from "next-auth/react";
 interface Video {
     id: string;
     title: string;
@@ -22,6 +22,8 @@ interface Video {
     const [queue, setQueue] = useState<Video[]>([]);
     const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
     const [userVoted, setUserVoted] = useState<Record<string, 1 | -1>>({});
+    const { data: session } = useSession();
+    
    
     const refreshQueue = useCallback(async () => {
         const res = await fetch("/api/streams/my");
@@ -71,10 +73,11 @@ interface Video {
     };
     const handleSubmit = async () => {
         if (!url.startsWith("https")) return;
-        await fetch(`/api/streams/create`, {
+        if(!session?.user?.id) return;
+        const  res = await fetch(`/api/streams`, {
         method: "POST", 
         body: JSON.stringify({
-            creatorId: "fc2da744-1edb-4946-946c-9a2bda7e0963",
+            creatorId:session.user.id,
             url,
         }),
         });

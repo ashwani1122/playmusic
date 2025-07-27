@@ -1,35 +1,36 @@
-
-require("dotenv").config();
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { prismaClient } from "../../../lib/db";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { prismaClient } from "@/app/lib/db"; // adjust path if needed
+import { NextAuthOptions } from "next-auth";
 
-
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({
         clientId: process.env.GOOGLE_ID ?? "",
         clientSecret: process.env.GOOGLE_SECRETE ?? "",
         }),
-        
     ],
-    secret: process.env.NEXTAUTH_SECRET ?? "5635635",
-    
-    callbacks :{
-        async signIn(params: any): Promise<boolean> {
-            try{
-                await prismaClient.user.create({
-                data : {
-                    email : params.user.email,
-                    provider : "google"
-                }
-            })
-            }catch(error){
-                console.log(error);
-            }
-            return true
+    adapter: PrismaAdapter(prismaClient),
+    secret: process.env.NEXTAUTH_SECRET ?? "some-secret", // use env var in production
+
+    callbacks: {
+        // Include user ID in the JWT token
+        async jwt({ token, user }) {
+        if (user) {
+            token.id = user.id;
         }
-    }
-}
+        return token;
+        },
+        // Expose user ID in the session object
+        async session({ session, token }) {
+        if (token?.id) {
+            session.user.id = token.id as string;
+        }
+        return session;
+        },
+    },
+};
+
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
