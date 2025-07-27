@@ -22,11 +22,10 @@ interface Video {
     const [queue, setQueue] = useState<Video[]>([]);
     const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
     const [userVoted, setUserVoted] = useState<Record<string, 1 | -1>>({});
-    const { data: session } = useSession();
-    
-   
+    const { data: session } =  useSession();
     const refreshQueue = useCallback(async () => {
         const res = await fetch("/api/streams/my");
+        console.log("this is session id "+session)
         if (!res.ok) return;
         const { streams } = await res.json();
         const sorted = [...streams].sort(
@@ -73,11 +72,11 @@ interface Video {
     };
     const handleSubmit = async () => {
         if (!url.startsWith("https")) return;
-        if(!session?.user?.id) return;
-        const  res = await fetch(`/api/streams`, {
+        // if(!session?.user?.id) return;
+        await fetch(`/api/streams`, {
         method: "POST", 
         body: JSON.stringify({
-            creatorId:session.user.id,
+            creatorId: session?.user?.id ?? "",
             url,
         }),
         });

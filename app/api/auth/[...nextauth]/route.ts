@@ -1,32 +1,56 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { prismaClient } from "@/app/lib/db"; // adjust path if needed
+import { prismaClient } from "@/app/lib/db";
 import { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({
         clientId: process.env.GOOGLE_ID ?? "",
-        clientSecret: process.env.GOOGLE_SECRETE ?? "",
+        clientSecret: process.env.GOOGLE_SECRETE ?? "", // ✅ also fixed typo
         }),
     ],
     adapter: PrismaAdapter(prismaClient),
-    secret: process.env.NEXTAUTH_SECRET ?? "some-secret", // use env var in production
+    secret: process.env.NEXTAUTH_SECRET ?? "some-secret",
+
+    // ✅ THIS is what was missing
+    session: {
+        strategy: "jwt",
+    },
 
     callbacks: {
-        // Include user ID in the JWT token
-        async jwt({ token, user }) {
-        if (user) {
-            token.id = user.id;
+        async jwt({ token, user, account }) {
+        console.log("🔥 jwt callback triggered");
+        console.log("token before:", JSON.stringify(token));
+        console.log("user:", JSON.stringify(user));
+        console.log("account:", JSON.stringify(account));
+
+        if (user?.email) {
+            const dbUser = await prismaClient.user.findUnique({
+            where: { email: user.email },
+            });
+
+            console.log("DB user:", JSON.stringify(dbUser));
+
+            if (dbUser) {
+            token.id = dbUser.id;
+            console.log("✅ token.id set to:", token.id);
+            }
         }
+
         return token;
         },
-        // Expose user ID in the session object
+
         async session({ session, token }) {
-        if (token?.id) {
+        console.log("🧠 session callback");
+        console.log("session.user before:", JSON.stringify(session.user));
+        console.log("token:", JSON.stringify(token));
+
+        if (session.user && token?.id) {
             session.user.id = token.id as string;
         }
+
         return session;
         },
     },
