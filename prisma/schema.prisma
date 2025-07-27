@@ -13,31 +13,45 @@ model User {
   provider       Provider
   streams        Stream[]
   Upvotes        Upvote[]
+  Downvotes      Downvote[]
   
 }
 model Stream {
-  id             String       @id @default(uuid())
-  type           StreamType
-  active         Boolean      @default(true)
-  title          String       @default("")
-  BigThumbnail   String       @default("")
-  SmallThumbnail String       @default("")
-  url            String      
-  extractedId    String?
-  userId         String
-  user           User         @relation(fields: [userId], references: [id])
-  Upvotes        Upvote[]
-  @@unique([userId, url])
-  
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id])
+  title           String
+  url             String
+  extractedId     String
+  bigThumbnail    String      
+  smallThumbnail  String     
+  type          StreamType?
+  active          Boolean      @default(true)
+  upvotes         Upvote[]
+  downvotes       Downvote[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime?    @updatedAt  
 }
-model Upvote{
-  id             String       @id @default(uuid())
-  userId         String
-  user           User         @relation(fields: [userId], references: [id])  
-  streamId       String
-  stream         Stream       @relation(fields: [streamId], references: [id]) 
-  @@unique([userId, streamId])
+
+
+model Upvote {
+  userId   String
+  streamId String
+  user     User     @relation(fields: [userId], references: [id])
+  stream   Stream   @relation(fields: [streamId], references: [id])
+
+  @@id([userId, streamId])
 }
+
+model Downvote {
+  userId   String
+  streamId String
+  user     User     @relation(fields: [userId], references: [id])
+  stream   Stream   @relation(fields: [streamId], references: [id])
+
+  @@id([userId, streamId])
+}
+
 enum StreamType {
   Youtube
   Spotify

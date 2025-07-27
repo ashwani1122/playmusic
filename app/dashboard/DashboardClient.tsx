@@ -11,8 +11,10 @@ interface Video {
     title: string;
     upvotes: number;
     downvotes: number;
-    SmallThumbnail: string;
+    smallThumbnail: string;
     extractedId: string;
+    url: string;
+    bigThumbnail: string;
     }
 
     export default function DashboardClient() {
@@ -20,16 +22,16 @@ interface Video {
     const [queue, setQueue] = useState<Video[]>([]);
     const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
     const [userVoted, setUserVoted] = useState<Record<string, 1 | -1>>({});
-
+   
     const refreshQueue = useCallback(async () => {
         const res = await fetch("/api/streams/my");
         if (!res.ok) return;
         const { streams } = await res.json();
-        setQueue(streams);
-
-        // Ensure currentVideo is always the top-voted one
-        const top = streams.sort((a:any, b:any) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes))[0];
-        setCurrentVideo(top);
+        const sorted = [...streams].sort(
+        (a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes)
+        );
+        setQueue(sorted);
+        setCurrentVideo(sorted[0]);
     }, []);
 
     useEffect(() => {
@@ -37,41 +39,44 @@ interface Video {
         const iv = setInterval(refreshQueue, 10000);
         return () => clearInterval(iv);
     }, [refreshQueue]);
+
     const handleVote = async (id: string, type: "up" | "down") => {
         if (userVoted[id] === (type === "up" ? 1 : -1)) return;
+
         await fetch(`/api/streams/${type === "up" ? "upvotes" : "downvotes"}`, {
         method: "POST",
         body: JSON.stringify({ streamId: id }),
         });
 
-        // Update local vote immediately
         setQueue(q =>
         q.map(v => {
             if (v.id === id) {
-            // const delta = type === "up" ? 1 : -1;
-            return {  ...v, upvotes: v.upvotes + (type === "up" ? 1 : 0), downvotes: v.downvotes - (type === "down" ? 1 : 0) };
+            return {
+                ...v,
+                upvotes: v.upvotes + (type === "up" ? 1 : 0),
+                downvotes: v.downvotes + (type === "down" ? 1 : 0),
+            };
             }
             return v;
         })
         );
-
         setUserVoted(v => ({ ...v, [id]: type === "up" ? 1 : -1 }));
-
-        // Re-sort and set currentVideo
         setQueue(q => {
-        const sorted = [...q].sort((a, b) =>
-            (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes)
+        const sorted = [...q].sort(
+            (a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes)
         );
         setCurrentVideo(sorted[0]);
         return sorted;
         });
     };
-
     const handleSubmit = async () => {
         if (!url.startsWith("https")) return;
-        await fetch("/api/streams", {
-        method: "POST",
-        body: JSON.stringify({ creatorId: "c91cccc7-80f2-47e9-9988-ee395ac7cbcb", url }),
+        await fetch(`/api/streams/create`, {
+        method: "POST", 
+        body: JSON.stringify({
+            creatorId: "fc2da744-1edb-4946-946c-9a2bda7e0963",
+            url,
+        }),
         });
         setUrl("");
         refreshQueue();
@@ -102,7 +107,12 @@ interface Video {
                 placeholder="Paste YouTube URL"
                 className="w-full p-2 rounded bg-gray-800 border border-gray-600"
             />
-            <Button variant="contained" size="small" onClick={handleSubmit} className="mt-2 w-full">
+            <Button
+                variant="contained"
+                size="small"
+                onClick={handleSubmit}
+                className="mt-2 w-full"
+            >
                 Add Video
             </Button>
             </div>
@@ -118,22 +128,43 @@ interface Video {
                     currentVideo?.id === vid.id && "scale-105 bg-gray-600"
                     )}
                 >
-                    <img src={vid.SmallThumbnail} alt={vid.title} className="w-16 h-10 rounded" />
+                    <img
+                    src={vid.smallThumbnail}
+                    alt={vid.title}
+                    className="w-16 h-10 rounded"
+                    />
                     <div className="flex-1">
                     <p className="font-semibold">{vid.title}</p>
                     <div className="flex items-center space-x-2 mt-1">
-                        <ArrowDropUpIcon fontSize="large"
-                        className={clsx("cursor-pointer", userVoted[vid.id] === 1 ? "text-green-400" : "text-green-600")}
+                        <ArrowDropUpIcon
+                        fontSize="large"
+                        className={clsx(
+                            "cursor-pointer",
+                            userVoted[vid.id] === 1
+                            ? "text-green-400"
+                            : "text-green-600"
+                        )}
                         onClick={() => handleVote(vid.id, "up")}
                         />
-                        <span>{queue.map(v => v.id === vid.id ? v._count.Upvotes : 0).reduce((a, b) => a + b)}</span>
-                        <ArrowDropDownIcon fontSize="large"
-                        className={clsx("cursor-pointer", userVoted[vid.id] === -1 ? "text-red-400" : "text-red-600")}
+                        <span>{vid.upvotes || 0}</span>
+                        <ArrowDropDownIcon
+                        fontSize="large"
+                        className={clsx(
+                            "cursor-pointer",
+                            userVoted[vid.id] === -1
+                            ? "text-red-400"
+                            : "text-red-600"
+                        )}
                         onClick={() => handleVote(vid.id, "down")}
                         />
+                        <span>{vid.downvotes}</span>
                     </div>
                     </div>
-                    {i === 0 && <span className="px-2 py-1 text-sm bg-blue-600 rounded">🎵 Now</span>}
+                    {i === 0 && (
+                    <span className="px-2 py-1 text-sm bg-blue-600 rounded">
+                        🎵 Now
+                    </span>
+                    )}
                 </li>
                 );
             })}
@@ -151,8 +182,16 @@ interface Video {
                 allowFullScreen
                 ></iframe>
                 <div className="flex space-x-4 mt-4">
-                <Button variant="contained" onClick={playNext}>Next ▶️</Button>
-                <Button variant="contained" startIcon={<ShareIcon />} onClick={share}>Share</Button>
+                <Button variant="contained" onClick={playNext}>
+                    Next ▶️
+                </Button>
+                <Button
+                    variant="contained"
+                    startIcon={<ShareIcon />}
+                    onClick={share}
+                >
+                    Share
+                </Button>
                 </div>
             </>
             ) : (
@@ -161,4 +200,4 @@ interface Video {
         </div>
         </div>
     );
-    }
+}
