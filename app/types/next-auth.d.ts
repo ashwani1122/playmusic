@@ -18,3 +18,8 @@ declare module "next-auth" {
         image?: string | null;
     }
 }
+declare global {
+    interface Window {
+        YT: any;
+    }
+}
