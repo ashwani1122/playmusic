@@ -21,10 +21,10 @@ export const authOptions: NextAuthOptions = {
 
     callbacks: {
         async jwt({ token, user, account }) {
-        console.log("🔥 jwt callback triggered");
-        console.log("token before:", JSON.stringify(token));
-        console.log("user:", JSON.stringify(user));
-        console.log("account:", JSON.stringify(account));
+        // console.log("🔥 jwt callback triggered");
+        // console.log("token before:", JSON.stringify(token));
+        // console.log("user:", JSON.stringify(user));
+        // console.log("account:", JSON.stringify(account));
 
         if (user?.email) {
             const dbUser = await prismaClient.user.findUnique({

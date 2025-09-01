@@ -88,7 +88,7 @@ export default function DashboardClient() {
             return {
               ...v,
               upvotes: v.upvotes + (type === "up" ? 1 : 0),
-              downvotes: v.downvotes + (type === "down" ? 1 : 0),
+              downvotes: v.downvotes - (type === "down" ? 1 : 0),
             };
           }
           return v;
@@ -197,6 +197,7 @@ export default function DashboardClient() {
 
         <ul className="space-y-3">
           {queue.map((vid, i) => (
+            
             <li
               key={vid.id}
               className={clsx(
@@ -212,27 +213,9 @@ export default function DashboardClient() {
               <div className="flex-1">
                 <p className="font-semibold">{vid.title}</p>
                 <div className="flex items-center space-x-2 mt-1">
-                  <ArrowDropUpIcon
-                    fontSize="large"
-                    className={clsx(
-                      "cursor-pointer",
-                      userVoted[vid.id] === 1
-                        ? "text-green-400"
-                        : "text-green-600"
-                    )}
-                    onClick={() => handleVote(vid.id, "up")}
-                  />
+                  <ArrowDropUpIcon  onClick={() => handleVote(vid.id, "up")}/>
                   <span>{vid.upvotes}</span>
-                  <ArrowDropDownIcon
-                    fontSize="large"
-                    className={clsx(
-                      "cursor-pointer",
-                      userVoted[vid.id] === -1
-                        ? "text-red-400"
-                        : "text-red-600"
-                    )}
-                    onClick={() => handleVote(vid.id, "down")}
-                  />
+                  <ArrowDropDownIcon onClick={() => handleVote(vid.id, "down")}/>
                   <span>{vid.downvotes}</span>
                 </div>
               </div>
@@ -247,10 +230,12 @@ export default function DashboardClient() {
       </div>
 
       <div className="flex-1 flex flex-col justify-center items-center">
-        {/* Always render the player container to prevent YT API errors */}
-        <div id="yt-player" className="w-3/4 h-3/4 rounded-lg shadow-lg" />
+        <div className="flex flex-col items-center justify-center border-radius-lg border-3 border-gray-600 bg-blue-700 rounded-lg">
+        <div id="yt-player" className="rounded-lg shadow-lg bg-white w-100 " />
+        </div>
+        <div className="bg-gray-800 p-2 rounded-lg  text-center flex flex-row items-center justify-center">
         {currentVideo ? (
-          <div className="flex space-x-4 mt-4">
+          <div className="flex space-x-4 mt-4 gap-20">
             <Button variant="contained" onClick={playNextVideoByVotes}>
               Next ▶️
             </Button>
@@ -265,6 +250,7 @@ export default function DashboardClient() {
         ) : (
           <p className="text-gray-400 mt-4">No video to play...</p>
         )}
+        </div>
       </div>
     </div>
   );
