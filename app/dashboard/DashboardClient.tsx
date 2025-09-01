@@ -218,11 +218,6 @@ export default function DashboardClient() {
                   <span>{vid.downvotes}</span>
                 </div>
               </div>
-              {i === 0 && (
-                <span className="px-2 py-1 text-sm bg-blue-600 rounded">
-                  🎵 Now
-                </span>
-              )}
             </li>
           ))}
         </ul>
