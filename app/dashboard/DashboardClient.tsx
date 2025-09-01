@@ -2,8 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Button from "@mui/material/Button";
-import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { ChevronUp , ChevronDown } from "lucide-react";
 import ShareIcon from "@mui/icons-material/Share";
 import clsx from "clsx";
 
@@ -16,22 +15,25 @@ interface Video {
   extractedId: string;
   url: string;
   bigThumbnail: string;
+  haveVoted: boolean;
 }
 
 export default function DashboardClient() {
   const [url, setUrl] = useState("");
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
-  const [userVoted, setUserVoted] = useState<Record<string, 1 | -1>>({});
+
   const playerRef = useRef<any>(null);
   const lastVideoIdRef = useRef<string | null>(null);
   const { data: session } = useSession();
+  
 
   const refreshQueue = useCallback(async () => {
     const res = await fetch("/api/streams/my");
     if (!res.ok) return;
     const { streams } = await res.json();
-
+    console.log("Fetched streams:", streams);
+    console.log("this is the queue", queue);
     const sorted = [...streams].sort(
       (a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes)
     );
@@ -73,29 +75,45 @@ export default function DashboardClient() {
     setCurrentVideo(sorted[0] ?? null);
   };
 
-  const handleVote = async (id: string, type: "up" | "down") => {
-    if (userVoted[id] === (type === "up" ? 1 : -1)) return;
-
-    await fetch(`/api/streams/${type === "up" ? "upvotes" : "downvotes"}`, {
+  const handleVote = async (id: string, haveVoted: boolean) => {  
+    if (haveVoted) {
+      setQueue((q) =>
+        [...q]
+          .map((v: Video) => {
+            if (v.id === id) {
+              return {
+                ...v,
+                upvotes: v.upvotes - 1,
+              };
+            }
+            return v;
+          })
+          .sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes))
+      );
+    } else {
+      setQueue((q) =>
+        [...q]
+          .map((v: Video) => {
+            if (v.id === id) {
+              return {
+                ...v,
+                upvotes: v.upvotes +1,
+              };
+            }
+            return v;
+          })
+          .sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes))
+      );
+    }
+    await fetch("/api/streams/upvotes", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ streamId: id }),
     });
 
-    setQueue((q) =>
-      [...q]
-        .map((v) => {
-          if (v.id === id) {
-            return {
-              ...v,
-              upvotes: v.upvotes + (type === "up" ? 1 : 0),
-              downvotes: v.downvotes + (type === "down" ? 1 : 0),
-            };
-          }
-          return v;
-        })
-        .sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes))
-    );
-    setUserVoted((v) => ({ ...v, [id]: type === "up" ? 1 : -1 }));
+    
   };
 
   const handleSubmit = async () => {
@@ -174,11 +192,11 @@ export default function DashboardClient() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-black text-white">
-      <div className="w-1/3 p-6 overflow-auto">
+    <div className="flex h-screen bg-purple-700 text-white justify-center items-center w-full">
+      <div className="w-1/3 p-6 overflow-auto flex flex-col h-full justify-center items-center  text-white w-full">
         <h2 className="text-2xl font-bold mb-4">Play Music</h2>
 
-        <div className="mb-4">
+        <div className=" w-100px h-50px mb-4">
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -196,33 +214,27 @@ export default function DashboardClient() {
         </div>
 
         <ul className="space-y-3">
-          {queue.map((vid, i) => (
+          {queue.map((vid, key) => (
             
             <li
               key={vid.id}
               className={clsx(
                 "flex items-center space-x-3 p-3 bg-gray-700 rounded transition-all duration-300",
-                currentVideo?.id === vid.id && "scale-105 bg-gray-600"
               )}
             >
+              
               <img
                 src={vid.smallThumbnail}
                 alt={vid.title}
                 className="w-40 h-30 rounded"
               />
-              <div className="flex-1">
+              <div className="flex-1 flex flex-col">
                 <p className="font-semibold">{vid.title}</p>
-                <div className="flex items-center space-x-2 mt-1">
-                  <ArrowDropUpIcon />
-                  <span>{vid.upvotes}</span>
-                  <span>{vid.downvotes}</span>
-                </div>
+                <div className="w-10 h-10 flex items-center justify-center bg-gray-800  cursor-pointer hover:bg-gray-600 rounded-md transition-colors">
+                  {vid.haveVoted? <ChevronDown className="w-8 h-4" onClick={() => handleVote(vid.id ,vid.haveVoted)} />:<ChevronUp className="w-8 h-4" onClick={() => handleVote(vid.id, vid.haveVoted)} />}
+                  <span className="mx-2">{vid.upvotes}</span>
+                    </div>
               </div>
-              {i === 0 && (
-                <span className="px-2 py-1 text-sm bg-blue-600 rounded">
-                  🎵 Now
-                </span>
-              )}
             </li>
           ))}
         </ul>

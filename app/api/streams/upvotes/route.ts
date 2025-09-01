@@ -10,28 +10,53 @@ const UpvoteSchema = z.object({
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) 
-    return NextResponse.json({ 
-  error: "Unauthorized" }, 
-  { status: 401 });
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const user = await prismaClient.user.findFirst({ where: { email: session.user.email } });
-  if (!user) return NextResponse.json({ error: "User not found" }, { status: 400 });
+  const user = await prismaClient.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 400 });
+  }
 
   const data = UpvoteSchema.parse(await req.json());
+
   try {
-    await prismaClient.upvote.create({
-      data: {
-        userId: user.id,
-        streamId: data.streamId
-      }
+    // Check if the user already upvoted this stream
+    const existing = await prismaClient.upvote.findUnique({
+      where: {
+        userId_streamId: {
+          userId: user.id,
+          streamId: data.streamId,
+        },
+      },
     });
 
-    return NextResponse.json({ message: "Upvoted" });
-  } catch (e: any) {
-    if (e.code === "P2002") {
-      return NextResponse.json({ message: "Already upvoted" }, { status: 409 });
+    if (existing) {
+      // Toggle off → remove upvote
+      await prismaClient.upvote.delete({
+        where: {
+          userId_streamId: {
+            userId: user.id,
+            streamId: data.streamId,
+          },
+        },
+      });
+      return NextResponse.json({ message: "Upvote removed" });
+    } else {
+      // Toggle on → add upvote
+      await prismaClient.upvote.create({
+        data: {
+          userId: user.id,
+          streamId: data.streamId,
+        },
+      });
+      return NextResponse.json({ message: "Upvoted" });
     }
-    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
+  } catch (e) {
+    console.error("Upvote API error:", e);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
