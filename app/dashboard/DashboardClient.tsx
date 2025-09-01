@@ -231,7 +231,6 @@ export default function DashboardClient() {
         {currentVideo ? (
           <div className="flex space-x-4 mt-4 gap-20">
             <Button variant="contained" onClick={playNextVideoByVotes}>
-              Next ▶️
             </Button>
             <Button
               variant="contained"
