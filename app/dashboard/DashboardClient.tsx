@@ -2,7 +2,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Button from "@mui/material/Button";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ShareIcon from "@mui/icons-material/Share";
 import clsx from "clsx";
 
@@ -15,13 +16,13 @@ interface Video {
   extractedId: string;
   url: string;
   bigThumbnail: string;
-  haveVoted: boolean;
 }
 
 export default function DashboardClient() {
   const [url, setUrl] = useState("");
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
+  const [userVoted, setUserVoted] = useState<Record<string, 1 | -1>>({});
   const playerRef = useRef<any>(null);
   const lastVideoIdRef = useRef<string | null>(null);
   const { data: session } = useSession();
@@ -72,26 +73,31 @@ export default function DashboardClient() {
     setCurrentVideo(sorted[0] ?? null);
   };
 
-  const handleVote = async (id: string,haveVoted: boolean) => {
-      setQueue((q) =>
+  const handleVote = async (id: string, type: "up" | "down") => {
+    if (userVoted[id] === (type === "up" ? 1 : -1)) return;
+
+    await fetch(`/api/streams/${type === "up" ? "upvotes" : "downvotes"}`, {
+      method: "POST",
+      body: JSON.stringify({ streamId: id }),
+    });
+
+    setQueue((q) =>
       [...q]
         .map((v) => {
           if (v.id === id) {
             return {
               ...v,
-              upvotes:haveVoted? v.upvotes + 1: v.upvotes,
-              downvotes: haveVoted? v.downvotes + 1: v.downvotes,
+              upvotes: v.upvotes + (type === "up" ? 1 : 0),
+              downvotes: v.downvotes + (type === "down" ? 1 : 0),
             };
           }
           return v;
         })
         .sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes))
     );
-    await fetch(`/api/streams/${haveVoted ? "downvotes": "upvotes"}`, {
-      method: "POST",
-      body: JSON.stringify({ streamId: id }),
-    });
+    setUserVoted((v) => ({ ...v, [id]: type === "up" ? 1 : -1 }));
   };
+
   const handleSubmit = async () => {
     if (!url.startsWith("https")) return;
     await fetch(`/api/streams`, {
@@ -206,8 +212,10 @@ export default function DashboardClient() {
               />
               <div className="flex-1">
                 <p className="font-semibold">{vid.title}</p>
-                <div className="w-10 h-10 bg-gray-800 flex items-center justify-center rounded cursor-pointer">
-                  {<ChevronUp/>}
+                <div className="flex items-center space-x-2 mt-1">
+                  <ArrowDropUpIcon />
+                  <span>{vid.upvotes}</span>
+                  <span>{vid.downvotes}</span>
                 </div>
               </div>
               {i === 0 && (
