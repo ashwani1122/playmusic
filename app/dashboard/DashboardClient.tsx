@@ -22,8 +22,8 @@ export default function DashboardClient() {
   const [url, setUrl] = useState("");
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
-
   const playerRef = useRef<any>(null);
+  const [isvoted, setIsVoted] = useState(false);
   const lastVideoIdRef = useRef<string | null>(null);
   const { data: session } = useSession();
   
@@ -75,7 +75,7 @@ export default function DashboardClient() {
     setCurrentVideo(sorted[0] ?? null);
   };
 
-  const handleVote = async (id: string, haveVoted: boolean) => {  
+  const handleVote = async (id: string, haveVoted: boolean) => {
     if (haveVoted) {
       setQueue((q) =>
         [...q]
@@ -192,8 +192,8 @@ export default function DashboardClient() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-purple-700 text-white justify-center items-center w-full">
-      <div className="w-1/3 p-6 overflow-auto flex flex-col h-full justify-center items-center  text-white w-full">
+    <div className="flex h-screen bg-purple-700 text-white justify-center items-center">
+      <div className="w-1/3 p-6 overflow-auto flex flex-col h-full   text-white">
         <h2 className="text-2xl font-bold mb-4">Play Music</h2>
 
         <div className=" w-100px h-50px mb-4">
@@ -231,15 +231,16 @@ export default function DashboardClient() {
               <div className="flex-1 flex flex-col">
                 <p className="font-semibold">{vid.title}</p>
                 <div className="w-10 h-10 flex items-center justify-center bg-gray-800  cursor-pointer hover:bg-gray-600 rounded-md transition-colors">
-                  {vid.haveVoted? <ChevronDown className="w-8 h-4" onClick={() => handleVote(vid.id ,vid.haveVoted)} />:<ChevronUp className="w-8 h-4" onClick={() => handleVote(vid.id, vid.haveVoted)} />}
+                  {vid.upvotes? <ChevronDown className="w-8 h-4" onClick={() => {
+                    handleVote(vid.id ,vid.haveVoted)
+                  }} />:<ChevronUp className="w-8 h-4" onClick={() => handleVote(vid.id, vid.haveVoted)} />}
                   <span className="mx-2">{vid.upvotes}</span>
-                    </div>
+                </div>
               </div>
             </li>
           ))}
         </ul>
       </div>
-
       <div className="flex-1 flex flex-col justify-center items-center">
         <div className="flex flex-col items-center justify-center border-radius-lg border-3 border-gray-600 bg-blue-700 rounded-lg">
         <div id="yt-player" className="rounded-lg shadow-lg bg-white w-100 " />
