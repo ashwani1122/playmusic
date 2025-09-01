@@ -188,7 +188,7 @@ export default function DashboardClient() {
   }, []);
 
   return (
-    <div className="bg-purple-700 min-h-screen text-white">
+    <div className="bg-purple-700 h-screen text-white">
       <div>
         <div className="p-4 border-b border-gray-600 text-center font-bold text-4xl fixed top-0 right-10 w-full bg-purple-700 z-10">
           <h1>Play Music</h1>
@@ -238,9 +238,9 @@ export default function DashboardClient() {
           />
           <Button
             variant="contained"
-            size="small"
+            size="medium"
             onClick={handleSubmit}
-            className="mt-2 w-full"
+            className="w-full"
           >
             Add Video
           </Button>
@@ -249,17 +249,16 @@ export default function DashboardClient() {
         
         <div>
         {currentVideo ? (
-          <div className="flex space-x-4 mt-4 gap-10 mb-2">
-            <Button  variant="contained" onClick={playNextVideoByVotes}>
+          <div className="flex space-x-10 m-2 w-full ">
+            <button  className="text-white-400 py-2 px-20 bg-blue-600 rounded-lg hover:bg-blue-800 transition-colors" onClick={playNextVideoByVotes}>
               Next ▶️
-            </Button>
-            <Button 
-              variant="contained"
-              startIcon={<ShareIcon />}
+            </button>
+            <button 
+              className="text-white-400 py-2 px-20 bg-blue-600 rounded-lg hover:bg-blue-800 transition-colors"
               onClick={share}
             >
               Share
-            </Button>
+            </button>
           </div>
         ) : (
           <p className="text-gray-400 mt-4">No video to play...</p>
