@@ -26,8 +26,6 @@ export default function DashboardClient() {
   const [isvoted, setIsVoted] = useState(false);
   const lastVideoIdRef = useRef<string | null>(null);
   const { data: session } = useSession();
-  
-
   const refreshQueue = useCallback(async () => {
     const res = await fetch("/api/streams/my");
     if (!res.ok) return;
@@ -177,8 +175,6 @@ export default function DashboardClient() {
 
     lastVideoIdRef.current = currentId;
   }, [currentVideo]);
-
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (playerRef.current) {
@@ -192,18 +188,24 @@ export default function DashboardClient() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-purple-700 text-white justify-center items-center ">
-      <div className="w-1/3 p-6 overflow-auto flex flex-col h-full   text-white">
-        <h2 className="text-2xl font-bold mb-4">Play Music</h2>
+    <div className="bg-purple-700 min-h-screen text-white">
+      <div>
+        <div className="p-4 border-b border-gray-600 text-center font-bold text-4xl">
+          <h1>Play Music</h1>
+        </div>
+      </div>
+    <div className="flex  h-screen bg-purple-700 text-white justify-center items-center ">
+      
+      <div className="w-1/3 p-6 overflow-auto flex flex-col h-full   text-white ml-70">
         
-
+<h2 className="text-2xl font-bold mb-4 mt-10">Current Playlist</h2>
+        
         <ul className="space-y-3">
           {queue.map((vid, key) => (
-            
             <li
               key={vid.id}
               className={clsx(
-                "flex items-center space-x-3 p-3 bg-gray-700 rounded transition-all duration-300",
+                "flex items-center space-x-3 p-3 bg-gray-700 rounded transition-all duration-300  hover:bg-gray-600"
               )}
             >
               <img
@@ -224,9 +226,10 @@ export default function DashboardClient() {
           ))}
         </ul>
       </div>
-      <div className="flex-1 flex flex-col justify-center items-center">
-        <div className="flex flex-col items-center justify-center border-radius-lg border-3 border-gray-600 bg-blue-700 rounded-lg">
-          <div className=" w-100px h-50px mb-4 w-full">
+      <div className="flex flex-col justify-center items-center mr-40 w-1/3">
+                <h1  className="text-2xl font-bold mb-4">Now Playing</h1>
+        <div className="flex flex-col items-center justify-center border-radius-lg border-3 border-gray-600 w-full rounded-lg">
+          <div className=" w-300px h-50px  w-full">
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -241,15 +244,16 @@ export default function DashboardClient() {
           >
             Add Video
           </Button>
+          <div id="yt-player" className="rounded-lg shadow-lg bg-white w-full mt-4"/>
         </div>
-        <div id="yt-player" className="rounded-lg shadow-lg bg-white w-100 " />
+        
         <div>
         {currentVideo ? (
-          <div className="flex space-x-4 mt-4 gap-20 mb-2">
-            <Button variant="contained" onClick={playNextVideoByVotes}>
+          <div className="flex space-x-4 mt-4 gap-10 mb-2">
+            <Button  variant="contained" onClick={playNextVideoByVotes}>
               Next ▶️
             </Button>
-            <Button
+            <Button 
               variant="contained"
               startIcon={<ShareIcon />}
               onClick={share}
@@ -264,6 +268,7 @@ export default function DashboardClient() {
         </div>
         
       </div>
+    </div>
     </div>
   );
 }
