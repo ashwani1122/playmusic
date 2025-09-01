@@ -16,26 +16,14 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 400 });
 
   const data = DownvoteSchema.parse(await req.json());
-
-  // Remove upvote if exists
-  await prismaClient.upvote.deleteMany({
+  try{
+  await prismaClient.downvote.deleteMany({
     where: { userId: user.id, streamId: data.streamId }
-  });
-
-  // Try to create a downvote
-  try {
-    await prismaClient.downvote.create({
-      data: {
-        userId: user.id,
-        streamId: data.streamId
-      }
-    });
-
+  })
+  return NextResponse.json({ message: "Downvoted" });
+  }
+  catch(e){
     return NextResponse.json({ message: "Downvoted" });
-  } catch (e: any) {
-    if (e.code === "P2002") {
-      return NextResponse.json({ message: "Already downvoted" }, { status: 409 });
-    }
-    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
   }
 }
+

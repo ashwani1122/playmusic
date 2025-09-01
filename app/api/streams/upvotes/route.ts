@@ -10,13 +10,15 @@ const UpvoteSchema = z.object({
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user?.email) 
+    return NextResponse.json({ 
+  error: "Unauthorized" }, 
+  { status: 401 });
+
   const user = await prismaClient.user.findFirst({ where: { email: session.user.email } });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 400 });
+
   const data = UpvoteSchema.parse(await req.json());
-  await prismaClient.downvote.deleteMany({
-    where: { userId: user.id, streamId: data.streamId }
-  });
   try {
     await prismaClient.upvote.create({
       data: {

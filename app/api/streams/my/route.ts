@@ -21,24 +21,19 @@ export async function GET(req: NextRequest) {
     const streams = await prismaClient.stream.findMany({
         where: { userId: user.id },
         include: {
-        _count: { select: { upvotes: true, downvotes: true } },
+        _count: { select: { upvotes: true} },
         upvotes: { where: { userId: user.id }, select: { streamId: true } },
         downvotes: { where: { userId: user.id }, select: { streamId: true } },
-
-        },
-        orderBy: { createdAt: "desc" },
-        take: 10,
-        skip: 0,
-
+        }
     });
     const out = streams.map(s => ({
         ...s,
-        upvotes: s._count.upvotes,
-        downvotes: s._count.downvotes,
-        userVoted: s.upvotes.length ? 1 : s.downvotes.length ? -1 : 0,
+        upvotes: s.upvotes.length,
+        downvotes: s.downvotes.length,
         url: `https://www.youtube.com/watch?v=${s.extractedId}` ,
         bigThumbnail: s.bigThumbnail,
         smallThumbnail: s.smallThumbnail,
+        haveVoted: s.upvotes.length > 0 ? true : false,
     }));
     return NextResponse.json({ streams: out });
     }
