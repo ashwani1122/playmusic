@@ -218,6 +218,11 @@ export default function DashboardClient() {
                   <span>{vid.downvotes}</span>
                 </div>
               </div>
+              {i === 0 && (
+                <span className="px-2 py-1 text-sm bg-blue-600 rounded">
+                  🎵 Now
+                </span>
+              )}
             </li>
           ))}
         </ul>
@@ -231,6 +236,7 @@ export default function DashboardClient() {
         {currentVideo ? (
           <div className="flex space-x-4 mt-4 gap-20">
             <Button variant="contained" onClick={playNextVideoByVotes}>
+              Next ▶️
             </Button>
             <Button
               variant="contained"
@@ -241,7 +247,7 @@ export default function DashboardClient() {
             </Button>
           </div>
         ) : (
-          <p className="text-gray-400 mt-4">No No video </p>
+          <p className="text-gray-400 mt-4">No video to play...</p>
         )}
         </div>
       </div>
