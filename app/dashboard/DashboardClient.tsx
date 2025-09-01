@@ -190,13 +190,13 @@ export default function DashboardClient() {
   return (
     <div className="bg-purple-700 min-h-screen text-white">
       <div>
-        <div className="p-4 border-b border-gray-600 text-center font-bold text-4xl">
+        <div className="p-4 border-b border-gray-600 text-center font-bold text-4xl fixed top-0 right-10 w-full bg-purple-700 z-10">
           <h1>Play Music</h1>
         </div>
       </div>
-    <div className="flex  h-screen bg-purple-700 text-white justify-center items-center ">
+    <div className="flex  h-screen bg-purple-700 text-white justify-center items-center">
       
-      <div className="w-1/3 p-6 overflow-auto flex flex-col h-full   text-white ml-70">
+      <div className="w-1/3 p-6 overflow-auto flex flex-col h-full   text-white ml-70 mt-20">
         
 <h2 className="text-2xl font-bold mb-4 mt-10">Current Playlist</h2>
         
@@ -226,7 +226,7 @@ export default function DashboardClient() {
           ))}
         </ul>
       </div>
-      <div className="flex flex-col justify-center items-center mr-40 w-1/3">
+      <div className="flex flex-col justify-center items-center mr-40 w-1/3 mt-20">
                 <h1  className="text-2xl font-bold mb-4">Now Playing</h1>
         <div className="flex flex-col items-center justify-center border-radius-lg border-3 border-gray-600 w-full rounded-lg">
           <div className=" w-300px h-50px  w-full">
