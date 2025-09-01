@@ -192,26 +192,10 @@ export default function DashboardClient() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-purple-700 text-white justify-center items-center">
+    <div className="flex h-screen bg-purple-700 text-white justify-center items-center ">
       <div className="w-1/3 p-6 overflow-auto flex flex-col h-full   text-white">
         <h2 className="text-2xl font-bold mb-4">Play Music</h2>
-
-        <div className=" w-100px h-50px mb-4">
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="Paste YouTube URL"
-            className="w-full p-2 rounded bg-gray-800 border border-gray-600"
-          />
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleSubmit}
-            className="mt-2 w-full"
-          >
-            Add Video
-          </Button>
-        </div>
+        
 
         <ul className="space-y-3">
           {queue.map((vid, key) => (
@@ -222,7 +206,6 @@ export default function DashboardClient() {
                 "flex items-center space-x-3 p-3 bg-gray-700 rounded transition-all duration-300",
               )}
             >
-              
               <img
                 src={vid.smallThumbnail}
                 alt={vid.title}
@@ -243,11 +226,26 @@ export default function DashboardClient() {
       </div>
       <div className="flex-1 flex flex-col justify-center items-center">
         <div className="flex flex-col items-center justify-center border-radius-lg border-3 border-gray-600 bg-blue-700 rounded-lg">
-        <div id="yt-player" className="rounded-lg shadow-lg bg-white w-100 " />
+          <div className=" w-100px h-50px mb-4 w-full">
+          <input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="Paste YouTube URL"
+            className="w-full p-2 rounded bg-gray-800 border border-gray-600 mb-2 text-white"
+          />
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleSubmit}
+            className="mt-2 w-full"
+          >
+            Add Video
+          </Button>
         </div>
-        <div className="bg-gray-800 p-2 rounded-lg  text-center flex flex-row items-center justify-center">
+        <div id="yt-player" className="rounded-lg shadow-lg bg-white w-100 " />
+        <div>
         {currentVideo ? (
-          <div className="flex space-x-4 mt-4 gap-20">
+          <div className="flex space-x-4 mt-4 gap-20 mb-2">
             <Button variant="contained" onClick={playNextVideoByVotes}>
               Next ▶️
             </Button>
@@ -263,6 +261,8 @@ export default function DashboardClient() {
           <p className="text-gray-400 mt-4">No video to play...</p>
         )}
         </div>
+        </div>
+        
       </div>
     </div>
   );
