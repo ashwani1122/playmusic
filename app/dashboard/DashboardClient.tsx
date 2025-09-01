@@ -241,7 +241,7 @@ export default function DashboardClient() {
             </Button>
           </div>
         ) : (
-          <p className="text-gray-400 mt-4">No video to play...</p>
+          <p className="text-gray-400 mt-4">No No video </p>
         )}
         </div>
       </div>
