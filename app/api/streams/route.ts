@@ -13,8 +13,6 @@ const CreateStreamSchema = z.object({
     const DeleteStreamSchema = z.object({
     id: z.string(),
     });
-
-    // POST: Create a stream
     export async function POST(req: NextRequest) {
     const data = CreateStreamSchema.parse(await req.json());
 

@@ -188,86 +188,91 @@ export default function DashboardClient() {
   }, []);
 
   return (
-    <div className="bg-purple-700 h-screen text-white">
-      <div>
-        <div className="p-4 border-b border-gray-600 text-center font-bold text-4xl fixed top-0 right-10 w-full bg-purple-700 z-10">
-          <h1>Play Music</h1>
-        </div>
-      </div>
-    <div className="flex  h-screen bg-purple-700 text-white justify-center items-center">
-      
-      <div className="w-1/3 p-6 overflow-auto flex flex-col h-full   text-white ml-70 mt-20">
-        
-<h2 className="text-2xl font-bold mb-4 mt-10">Current Playlist</h2>
-        
-        <ul className="space-y-3">
-          {queue.map((vid, key) => (
-            <li
-              key={vid.id}
-              className={clsx(
-                "flex items-center space-x-3 p-3 bg-gray-700 rounded transition-all duration-300  hover:bg-gray-600"
-              )}
-            >
-              <img
-                src={vid.smallThumbnail}
-                alt={vid.title}
-                className="w-40 h-30 rounded"
-              />
-              <div className="flex-1 flex flex-col">
-                <p className="font-semibold">{vid.title}</p>
-                <div className="w-10 h-10 flex items-center justify-center bg-gray-800  cursor-pointer hover:bg-gray-600 rounded-md transition-colors">
-                  {vid.upvotes? <ChevronDown className="w-8 h-4" onClick={() => {
-                    handleVote(vid.id ,vid.haveVoted)
-                  }} />:<ChevronUp className="w-8 h-4" onClick={() => handleVote(vid.id, vid.haveVoted)} />}
-                  <span className="mx-2">{vid.upvotes}</span>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="flex flex-col justify-center items-center mr-40 w-1/3 mt-20">
-                <h1  className="text-2xl font-bold mb-4">Now Playing</h1>
-        <div className="flex flex-col items-center justify-center border-radius-lg border-3 border-gray-600 w-full rounded-lg">
-          <div className=" w-300px h-50px  w-full">
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="Paste YouTube URL"
-            className="w-full p-2 rounded bg-gray-800 border border-gray-600 mb-2 text-white"
-          />
-          <Button
-            variant="contained"
-            size="medium"
-            onClick={handleSubmit}
-            className="w-full"
+    <div className="bg-purple-700 min-h-screen text-white">
+  <div className="flex flex-col md:flex-row h-full justify-center items-start md:items-center px-6 py-10 space-y-10 md:space-y-0 md:space-x-10">
+    
+    {/* Playlist Panel */}
+     {queue.length>0 && <div className="w-full md:w-1/3 p-6 bg-purple-800 rounded-lg overflow-y-auto max-h-[90vh]">
+     <h2 className="text-2xl font-bold mb-6">Current Playlist</h2>
+      <ul className="space-y-4">
+        {queue.map((vid, key) => (
+          <li
+            key={vid.id}
+            className="flex items-center space-x-4 p-4 bg-gray-700 rounded hover:bg-gray-600 transition-all duration-300"
           >
-            Add Video
-          </Button>
-          <div id="yt-player" className="rounded-lg shadow-lg bg-white w-full mt-4"/>
-        </div>
-        
-        <div>
-        {currentVideo ? (
-          <div className="flex space-x-10 m-2 w-full ">
-            <button  className="text-white-400 py-2 px-20 bg-blue-600 rounded-lg hover:bg-blue-800 transition-colors" onClick={playNextVideoByVotes}>
-              Next ▶️
-            </button>
-            <button 
-              className="text-white-400 py-2 px-20 bg-blue-600 rounded-lg hover:bg-blue-800 transition-colors"
-              onClick={share}
-            >
-              Share
-            </button>
-          </div>
-        ) : (
-          <p className="text-gray-400 mt-4">No video to play...</p>
-        )}
-        </div>
-        </div>
-        
+            <img
+              src={vid.smallThumbnail}
+              alt={vid.title}
+              className="w-24 h-16 object-cover rounded"
+            />
+            <div className="flex-1 flex flex-col">
+              <p className="font-semibold">{vid.title}</p>
+              <div className="flex items-center mt-2 space-x-2">
+                <div
+                  className="w-10 h-10 flex items-center justify-center bg-gray-800 hover:bg-gray-700 cursor-pointer rounded-md transition-colors"
+                  onClick={() => handleVote(vid.id, vid.haveVoted)}
+                >
+                  {vid.upvotes ? (
+                    <ChevronDown className="w-5 h-5" />
+                  ) : (
+                    <ChevronUp className="w-5 h-5" />
+                  )}
+                </div>
+                <span>{vid.upvotes}</span>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+}
+    {/* Now Playing Panel */}
+    <div className="w-full md:w-1/3 p-6 bg-purple-800 rounded-lg flex flex-col items-center max-h-[90vh] overflow-y-auto">
+      <h1 className="text-2xl font-bold mb-4">Now Playing</h1>
+
+      <div className="w-full">
+        <input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Paste YouTube URL"
+          className="w-full p-2 rounded bg-gray-800 border border-gray-600 mb-3 text-white"
+        />
+        <Button
+          variant="contained"
+          size="medium"
+          onClick={handleSubmit}
+          className="w-full mb-4"
+        >
+          Add Video
+        </Button>
+        <div
+          id="yt-player"
+          className="rounded-lg shadow-lg bg-white w-full aspect-video mt-2"
+        />
       </div>
+
+      {/* Buttons */}
+      {currentVideo ? (
+        <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full">
+          <button
+            className="flex-1 py-2 bg-blue-600 rounded-lg hover:bg-blue-800 transition-colors"
+            onClick={playNextVideoByVotes}
+          >
+            Next ▶️
+          </button>
+          <button
+            className="flex-1 py-2 bg-blue-600 rounded-lg hover:bg-blue-800 transition-colors"
+            onClick={share}
+          >
+            Share
+          </button>
+        </div>
+      ) : (
+        <p className="text-gray-300 mt-6">No video to play...</p>
+      )}
     </div>
-    </div>
+  </div>
+</div>
+
   );
 }
