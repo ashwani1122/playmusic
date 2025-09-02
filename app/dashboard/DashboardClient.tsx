@@ -192,7 +192,7 @@ export default function DashboardClient() {
   <div className="flex flex-col md:flex-row h-full justify-center items-start md:items-center px-6 py-10 space-y-10 md:space-y-0 md:space-x-10">
     
     {/* Playlist Panel */}
-     {queue.length>0 && <div className="w-full md:w-1/3 p-6 bg-purple-800 rounded-lg overflow-y-auto max-h-[90vh]">
+     {queue.length>0 && <div className="w-full md:w-1/3 p-6 bg-purple-800 rounded-lg overflow-y-auto max-h-[90vh] mt-8">
      <h2 className="text-2xl font-bold mb-6">Current Playlist</h2>
       <ul className="space-y-4">
         {queue.map((vid, key) => (
@@ -227,7 +227,7 @@ export default function DashboardClient() {
     </div>
 }
     {/* Now Playing Panel */}
-    <div className="w-full md:w-1/3 p-6 bg-purple-800 rounded-lg flex flex-col items-center max-h-[90vh] overflow-y-auto">
+    <div className="w-full md:w-1/3 p-6 bg-purple-800 rounded-lg flex flex-col items-center max-h-[90vh] overflow-y-auto mt-8">
       <h1 className="text-2xl font-bold mb-4">Now Playing</h1>
 
       <div className="w-full">
