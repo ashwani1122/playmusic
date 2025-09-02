@@ -81,8 +81,9 @@ const playNextVideoByVotes = () => {
   deleteCurrentVideo(currentVideo.id);
 };
 
-
+  
   const handleVote = async (id: string, haveVoted: boolean) => {
+    setIsVoted(voted => !voted)
     if (haveVoted) {
       setQueue((q) =>
         [...q]
@@ -90,7 +91,7 @@ const playNextVideoByVotes = () => {
             if (v.id === id) {
               return {
                 ...v,
-                upvotes: v.upvotes - 1,
+                upvotes: v.upvotes>0? v.upvotes - 1: v.upvotes,
               };
             }
             return v;
@@ -104,7 +105,7 @@ const playNextVideoByVotes = () => {
             if (v.id === id) {
               return {
                 ...v,
-                upvotes: v.upvotes +1,
+                upvotes: v.upvotes? v.upvotes: v.upvotes + 1,
               };
             }
             return v;
