@@ -50,28 +50,37 @@ export default function DashboardClient() {
   }, [refreshQueue]);
 
   const deleteCurrentVideo = async (videoId: string) => {
-    try {
-      await fetch("/api/streams", {
-        method: "DELETE",
-        body: JSON.stringify({ id: videoId }),
-      });
-      setQueue((prev) => prev.filter((v) => v.id !== videoId));
-    } catch (err) {
-      console.error("Failed to delete video", err);
-    }
-  };
+  if (!videoId) return;
 
-  const playNextVideoByVotes = async () => {
-    if (!currentVideo) return;
-    await deleteCurrentVideo(currentVideo.id);
+  // Fire and forget — no `await`
+  fetch("/api/streams", {
+    method: "DELETE",
+    body: JSON.stringify({ id: videoId }),
+  }).catch((err) => {
+    console.error("Failed to delete video", err);
+    // Optional: Add a way to retry or notify user
+  });
+};
 
-    const sorted = [...queue]
-      .filter((v) => v.id !== currentVideo.id)
-      .sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
+const playNextVideoByVotes = () => {
+  if (!currentVideo) return;
 
-    setQueue(sorted);
-    setCurrentVideo(sorted[0] ?? null);
-  };
+  // Optimistically remove the current video from the queue
+  const updatedQueue = queue.filter((v) => v.id !== currentVideo.id);
+
+  // Sort the remaining queue by votes
+  const sortedQueue = [...updatedQueue].sort(
+    (a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes)
+  );
+
+  // Update state immediately
+  setQueue(sortedQueue);
+  setCurrentVideo(sortedQueue[0] ?? null);
+
+  // Now send the delete request in the background
+  deleteCurrentVideo(currentVideo.id);
+};
+
 
   const handleVote = async (id: string, haveVoted: boolean) => {
     if (haveVoted) {
