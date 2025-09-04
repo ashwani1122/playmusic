@@ -74,7 +74,7 @@ function joinRoom() {
             color="primary">
             Join Room
             </Button>}
-            {open&& <div className="bg-gray-800 w-60 h-30 flex flex-col gap-2 rounded-2xl p-4 mt-2">
+            {open&&!roomId&& <div className="bg-gray-800 w-60 h-30 flex flex-col gap-2 rounded-2xl p-4 mt-2">
             <input className="px-4 py-2 bg-white rounded  mt-2 text-black" ref={inputRef} type="text" placeholder="Space Name">
             </input>
             <Button  variant="contained" color="primary"  onClick={createChatRoom}>create</Button>
@@ -82,7 +82,7 @@ function joinRoom() {
         {roomId && <div className="bg-gray-800 w-60 h-30 flex flex-col gap-2 rounded-2xl p-4 mt-2">
           <input className="px-4 py-2 bg-white rounded  mt-2 text-black" ref={inputRef} type="text" placeholder="Space Name">
           </input>
-          <Button variant="contained" color="primary" onClick={joinRoom}>create</Button>
+          <Button variant="contained" color="primary" onClick={joinRoom}>Join</Button>
         </div>}
       </div>
       {session?.data?.user ? (
