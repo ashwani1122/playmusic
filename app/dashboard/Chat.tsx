@@ -3,7 +3,6 @@ import { useRef } from "react";
 
 export default function Chat() {
     const inputRef = useRef<HTMLInputElement>(null);
-    const socket = new WebSocket("ws://localhost:3001");
     
     return (
         <div className="w-full flex flex-col justify-end p-4 bg-gray-800 h-screen gap-4 rounded-lg">

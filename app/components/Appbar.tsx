@@ -6,21 +6,51 @@ export default function Appbar() {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [open, setOpen]= React.useState(false)
   
-  function createChatRoom(){
-  if(!inputRef.current?.value) return;
-  alert(inputRef.current.value);
-  const roomName = inputRef.current?.value;
-      inputRef.current.value = "";
-      const socket = new WebSocket("ws://localhost:3001");
-      socket.onopen = () => {
-          socket.send(JSON.stringify({
-              type:"join",
-              payload:{
-                name:roomName
-              }
-          }));
-      };
+ const socketRef = React.useRef<WebSocket | null>(null);
+
+function createChatRoom() {
+  if (!inputRef.current?.value) return;
+
+  const roomName = inputRef.current.value;
+  inputRef.current.value = "";
+
+  const socket = new WebSocket("ws://localhost:3001");
+  socketRef.current = socket;
+
+  socket.onopen = () => {
+    console.log("WebSocket connected");
+    socket.send(JSON.stringify({
+      type: "join",
+      payload: { name: roomName }
+    }));
+  };
+
+  socket.onmessage = (event) => {
+    try {
+      const message = JSON.parse(event.data);
+      console.log("Received message:", message);
+      alert(message.roomId);
+      if (message.roomId) {
+        alert(message.roomId);
+        console.log("room id: ", message.roomId);
+      } else {
+        console.warn("roomId not found in message:", message);
+      }
+    } catch (error) {
+      console.error("Error parsing message:", error);
     }
+  };
+
+  socket.onerror = (error) => {
+    console.error("WebSocket error:", error);
+  };
+
+  socket.onclose = () => {
+    console.log("WebSocket closed");
+  };
+}
+
+
     function toggle(){
         setOpen(!open)
     }
@@ -54,8 +84,6 @@ export default function Appbar() {
       )}
     </div>
   </div>
-
 </div>
-
-    )
+  )
 }
