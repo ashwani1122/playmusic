@@ -5,7 +5,7 @@ import Button from "@mui/material/Button";
 import { ChevronUp , ChevronDown } from "lucide-react";
 import ShareIcon from "@mui/icons-material/Share";
 import clsx from "clsx";
-
+import Chat from "./Chat";
 interface Video {
   id: string;
   title: string;
@@ -91,7 +91,8 @@ const playNextVideoByVotes = () => {
             if (v.id === id) {
               return {
                 ...v,
-                upvotes: v.upvotes>0 ? v.upvotes - 1: v.upvotes,
+                upvotes: v.upvotes-1,
+                haveVoted: false
               };
             }
             return v;
@@ -105,7 +106,8 @@ const playNextVideoByVotes = () => {
             if (v.id === id) {
               return {
                 ...v,
-                upvotes: v.upvotes? v.upvotes: v.upvotes + 1,
+                upvotes: v.upvotes + 1,
+                haveVoted: true
               };
             }
             return v;
@@ -199,7 +201,8 @@ const playNextVideoByVotes = () => {
 
   return (
     <div className="bg-purple-700 min-h-screen text-white">
-  <div className="flex flex-col md:flex-row h-full justify-center items-start md:items-center px-6 py-10 space-y-10 md:space-y-0 md:space-x-10">
+      
+  <div className="flex flex-col md:flex-row h-full justify-center items-start md:items-center  py-10 space-y-10 md:space-y-0 md:space-x-10">
     
      {queue.length>0 && <div className="w-full md:w-1/3 p-6 bg-purple-800 rounded-lg overflow-y-auto max-h-[90vh] mt-8">
      <h2 className="text-2xl font-bold mb-6">Current Playlist</h2>
@@ -279,8 +282,11 @@ const playNextVideoByVotes = () => {
         <p className="text-gray-300 mt-6">No video to play...</p>
       )}
     </div>
+    <div className="w-full md:w-1/3 p-6 rounded-lg flex flex-col justify-baseine items-end max-h-[90vh] overflow-y-auto mt-8 items-baseline">
+      <Chat/>
+    </div>
+    
   </div>
 </div>
-
   );
 }
