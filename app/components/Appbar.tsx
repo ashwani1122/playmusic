@@ -3,14 +3,20 @@ import {  signIn, signOut, useSession } from "next-auth/react";
 import * as React from 'react';
 import  Button  from "@mui/material/Button";
 export default function Appbar() {
+  const inputRef = React.useRef<HTMLInputElement>(null)
   const [open, setOpen]= React.useState(false)
+  
   function createChatRoom(){
+  if(!inputRef.current?.value) return;
+  alert(inputRef.current.value);
+  const roomName = inputRef.current?.value;
+      inputRef.current.value = "";
       const socket = new WebSocket("ws://localhost:3001");
       socket.onopen = () => {
           socket.send(JSON.stringify({
               type:"join",
               payload:{
-                name:"new"
+                name:roomName
               }
           }));
       };
@@ -31,6 +37,11 @@ export default function Appbar() {
             color="primary">
           create room
           </Button>
+            {open&& <div className="bg-gray-800 w-60 h-30 flex flex-col gap-2 rounded-2xl p-4 mt-2">
+            <input className="px-4 py-2 bg-white rounded  mt-2 text-black" ref={inputRef} type="text" placeholder="Space Name">
+            </input>
+            <Button  variant="contained" color="primary"  onClick={createChatRoom}>create</Button>
+    </div>}
       </div>
       {session?.data?.user ? (
         <Button variant="contained" color="primary" onClick={() => signOut()}>
@@ -43,12 +54,7 @@ export default function Appbar() {
       )}
     </div>
   </div>
-  {open&& <div>
-            <input>
-              
-            </input>
-            <Button onClick={createChatRoom}>create</Button>
-    </div>}
+
 </div>
 
     )
