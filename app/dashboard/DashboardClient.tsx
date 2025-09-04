@@ -3,8 +3,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Button from "@mui/material/Button";
 import { ChevronUp , ChevronDown } from "lucide-react";
-import ShareIcon from "@mui/icons-material/Share";
-import clsx from "clsx";
 import Chat from "./Chat";
 interface Video {
   id: string;
