@@ -5,7 +5,7 @@ import  Button  from "@mui/material/Button";
 export default function Appbar() {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [open, setOpen]= React.useState(false)
-  
+  const [roomId, setRoomId] = React.useState<string | null>(null);
  const socketRef = React.useRef<WebSocket | null>(null);
 
 function createChatRoom() {
@@ -33,6 +33,7 @@ function createChatRoom() {
       if (message.roomId) {
         alert(message.roomId);
         console.log("room id: ", message.roomId);
+        setRoomId(message.roomId);
       } else {
         console.warn("roomId not found in message:", message);
       }
@@ -50,7 +51,9 @@ function createChatRoom() {
   };
 }
 
+function joinRoom() {
 
+}
     function toggle(){
         setOpen(!open)
     }
@@ -62,16 +65,25 @@ function createChatRoom() {
     
     <div className="space-x-4 flex">
       <div>
-        <Button variant="contained"
+        {!roomId ? <Button variant="contained"
             onClick={toggle}
             color="primary">
           create room
-          </Button>
+          </Button>:<Button variant="contained"
+            onClick={toggle}
+            color="primary">
+            Join Room
+            </Button>}
             {open&& <div className="bg-gray-800 w-60 h-30 flex flex-col gap-2 rounded-2xl p-4 mt-2">
             <input className="px-4 py-2 bg-white rounded  mt-2 text-black" ref={inputRef} type="text" placeholder="Space Name">
             </input>
             <Button  variant="contained" color="primary"  onClick={createChatRoom}>create</Button>
     </div>}
+        {roomId && <div className="bg-gray-800 w-60 h-30 flex flex-col gap-2 rounded-2xl p-4 mt-2">
+          <input className="px-4 py-2 bg-white rounded  mt-2 text-black" ref={inputRef} type="text" placeholder="Space Name">
+          </input>
+          <Button variant="contained" color="primary" onClick={joinRoom}>create</Button>
+        </div>}
       </div>
       {session?.data?.user ? (
         <Button variant="contained" color="primary" onClick={() => signOut()}>
