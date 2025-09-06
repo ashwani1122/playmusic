@@ -9,7 +9,6 @@ export default function Appbar() {
   const [open, setOpen]= React.useState(false)
   const joinRoom = useSocket().joinRoom;
   const id = inputRef.current?.value as string;
-      const socketRef = React.useRef<WebSocket | null>(null);
       const session = useSession();
 
     
