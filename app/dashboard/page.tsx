@@ -7,7 +7,7 @@ const DashboardClient = dynamic(() => import("./DashboardClient"), {
 
 export default function Page() {
     return(
-        <div>
+        <div className="pt-16 bg-purple-700 min-h-screen text-white">
     <DashboardClient />
         </div>
 );
